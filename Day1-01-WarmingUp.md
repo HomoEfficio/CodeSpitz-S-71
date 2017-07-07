@@ -119,7 +119,7 @@ table.load("https://gist.githubusercontent.com/hikaMaeng/717dc66225e40a8fe8d1c40
 ### arrow function
 
 - 다른 언어에서는 보통 람다(Lambda)라고 불린다.
-- arrow function은 함수지만 arrow function 내에서의 `this`는 일반적인 JavaScript 내의 `this`와는 다르게 별도로 `this`를 바인딩하지 않고, arrow function이 사용되고 있는 scope에서의 `this`를 가리킨다.
+- arrow function은 함수지만 arrow function 내에서의 `this`는 JavaScript의 일반적인 함수 안에서의 `this`와는 다르게, 별도로 `this`를 바인딩하지 않고 arrow function이 사용되고 있는 scope에서의 `this`를 가리킨다.
 - `function`, `var` 등과 같이 ES3.1에서만 존재하고 ES2015+에는 없는 키워드를 사용하면 ES3.1 호환 모드로 동작하게 되고 성능 저하가 발생한다.
 
 ### Symbol
