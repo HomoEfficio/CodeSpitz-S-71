@@ -293,11 +293,11 @@ const XmlData = class extends DataLoad {
 ```javascript
 // json 일 때 
 const dataLoad = new JsonData(jsonDataSource);
-data1.getData();  // json 데이터 반환
+dataLoad.getData();  // json 데이터 반환
 
 // xml 일 때
 const dataLoad = new XmlData(xmlDataSource);
-data2.getData();  // xml 데이터 반환
+dataLoad.getData();  // xml 데이터 반환
 ```
 
 이런 **방식의 변화**는 데이터 읽어오기에만 해당되는 것이 아니라 그리기에도 해당된다. 
