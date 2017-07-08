@@ -1,5 +1,7 @@
 # ES6 Warming Up
 
+이 글은 Hika Maeng님의 Code Spitz - S71 강의 내용을 정리한 글입니다.
+
 본격적인 객체지향 디자인 패턴에 들어가기에 앞서,
 ES2015+로 워밍업 좀 해보자.
 
