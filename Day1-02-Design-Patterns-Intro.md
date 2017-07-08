@@ -393,7 +393,7 @@ const JsonData = class extends Data{
 
 `JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`DataLoad`의 구현체인 `JsonData`가 `DataLoad`와 `Renderer` 사이의 규약인 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
 
-![Imgur](http://i.imgur.com/pEhIcUr.png)
+![Imgur](http://i.imgur.com/GNWXc0E.png)
 
 빨간색 선으로 표시한 것처럼, 뭔가 내부에 있는 것 같은 `JsonData`가 외부와의 협력에 사용되는 `Info`를 직접 알고 있는 것은 일단 모양새부터 이상하다는 게 보인다. 
 
@@ -574,11 +574,11 @@ const Renderer = class{
 
 그림으로 보면 다음과 같이 이상해 보인다.
 
-![Imgur](http://i.imgur.com/qn5Oc9V.png)
+![Imgur](http://i.imgur.com/QINavPN.png)
 
 `Renderer`는 다음 그림처럼 `Info`에만 의존해야 하지 않을까?
 
-![Imgur](http://i.imgur.com/BgmiDUM.png)
+![Imgur](http://i.imgur.com/9bWVV4F.png)
 
 위의 그림을 반영하면 `Renderer`는 다음과 같이 바뀐다.
 
@@ -642,7 +642,7 @@ const TableRenderer = class extends Renderer {
 
 그림으로 보면 다음과 같다.
 
-![Imgur](http://i.imgur.com/OY5B3Ne.png)
+![Imgur](http://i.imgur.com/TY3L66e.png)
 
 이를 해결하려면 `TableRenderer`가 `Info`의 속성을 모르고 `Renderer`의 속성만 알게 하면 된다. 
 
