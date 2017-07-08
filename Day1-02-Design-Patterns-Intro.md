@@ -636,7 +636,7 @@ const TableRenderer = class extends Renderer {
 		caption.innerHTML = this._info.title;    // <--여기!!
 ```
 
-`TableRenderer`가 `this._info`라는 부모 객체를 통해 `this._info.title`이라는 값에 접근하고 있으므로 문제될 게 없어 보인다.
+`TableRenderer`가 `this._info`라는 부모 객체의 속성을 통해 `this._info.title`이라는 값에 접근하고 있으므로 문제될 게 없어 보인다.
 
 그런데 `this._info`에 `title`이라는 속성이 있다는 것은 어떻게 알았을까? 
 
