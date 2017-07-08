@@ -640,7 +640,7 @@ const TableRenderer = class extends Renderer {
 
 그런데 `this._info`에 `title`이라는 속성이 있다는 것은 어떻게 알았을까? 
 
-`TableRenderer`는 코드 상에서는 `Info`의 존재에 대해 전혀 모르고 있다. 그런데 `Info` 안에 `title`이라는 속성이 있다는 마치 알고 있는 것처럼 태연하게 `this._info.title`이라고 읽어 오고 있다. 
+`TableRenderer`는 코드 상에서는 `Info`의 존재에 대해 전혀 모르고 있다. 그런데 `Info` 안에 `title`이라는 속성이 있다는 걸 마치 알고 있는 것처럼 태연하게 `this._info.title`이라고 읽어 오고 있다. 
 
 그림으로 보면 다음과 같다.
 
