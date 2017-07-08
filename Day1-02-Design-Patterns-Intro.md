@@ -1,6 +1,6 @@
 # Design Patterns Intro
 
-이 글은 Hika Maeng님의 [Code Spitz - S71](https://www.facebook.com/groups/codespitz/) 강의 내용을 정리한 글입니다.
+이 글은 Hika Maeng님의 [Code Spitz](https://www.facebook.com/groups/codespitz/) 강의 내용을 정리한 글입니다.
 
 ## 모든 프로그램은 변한다.
 
