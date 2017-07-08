@@ -638,7 +638,7 @@ const TableRenderer = class extends Renderer {
 
 `TableRenderer`가 `this._info`라는 부모 객체의 속성을 통해 `this._info.title`이라는 값에 접근하고 있으므로 문제될 게 없어 보인다.
 
-그런데 `this._info`는 `Info` 객체를 그대로 받아온 객체인데, `title`이라는 속성이 있다는 것은 어떻게 알았을까? 
+그런데 `this._info`는 `Info` 객체를 그대로 받아온 객체이므로, `this._info.title`이라고 쓴 것은 `Info`객체 안에 `title`이라는 속성이 있다는 것을 알고 있다는 얘기다. 어떻게 알았을까? 
 
 `TableRenderer`는 코드 상에서는 `Info`의 존재에 대해 전혀 모르고 있다. 그런데 `Info` 안에 `title`이라는 속성이 있다는 걸 마치 알고 있는 것처럼 태연하게 `this._info.title`이라고 읽어 오고 있다. 
 
