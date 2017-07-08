@@ -681,7 +681,7 @@ const TableRenderer = class extends Renderer {
 		caption.innerHTML = this._title;    // <--여기!! 이하 this._info.header와 this._info.items도 바뀐다.
 ```
 
-`TableRenderer`는 `Info`에 대해서는 전혀 모르고 그저 부모인 `Renderer`에 `title` 속성이 있다는 것만 알면 된다.
+`TableRenderer`는 `Info`에 대해서는 전혀 모르고 그저 부모인 `Renderer`에 `_title` 속성이 있다는 것만 알면 된다.
 
 이제 드디어 대망의 막을 내릴 시간이 왔다.
 
