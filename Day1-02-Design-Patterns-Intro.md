@@ -48,6 +48,10 @@
 >- 변화율이 다른 것들을 분리하면 의존성이 낮아진다. 
 >    - 변화율이 다른 것들을 모아두면 응집성이 낮아지고, 의존성이 높아진다.
 
+- 응집도: cohesion, 결합도: coupling
+
+    ![](http://www.ccs.neu.edu/research/demeter/DAJ/docs/thesis-sung_2002_05_29_final_draft_files/image131.gif)
+
 그럼 변화율이 같은 것과 다른 것을 어떻게 구분할 것인가?
 
 ## 단일 책임
