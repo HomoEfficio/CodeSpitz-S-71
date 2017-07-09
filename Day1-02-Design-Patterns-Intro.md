@@ -129,7 +129,7 @@ const renderer = new Renderer();
 renderer.render(data);
 ```
 
-이제 JSON 데이터를 읽어서 테이블로 그리는 작업을 수행하기 위해 `JsonData`와 `Renderer` 객체가 객체망을 이루며 서로 협력한다.
+이제 JSON 데이터를 읽어서 테이블로 그리는 작업을 수행하기 위해 `DataLoad`와 `Renderer` 객체가 객체망을 이루며 서로 협력한다.
 
 자 이제 JSON 데이터를 가져오는 부분을 다음과 같이 구현하고,
 
@@ -393,7 +393,7 @@ const JsonData = class extends Data{
 };
 ```
 
-`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`DataLoad`의 구현체인 `JsonData`가 `DataLoad`와 `Renderer` 사이의 규약인 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 알 수 있다.
+`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`DataLoad`의 구현체인 `JsonData`가 `DataLoad`와 `Renderer` 사이의 규약인 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
 
 ![Imgur](http://i.imgur.com/GNWXc0E.png)
 
