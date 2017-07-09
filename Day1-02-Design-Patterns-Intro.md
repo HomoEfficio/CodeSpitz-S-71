@@ -392,7 +392,9 @@ const JsonData = class extends Data{
 
 ## Info 객체를 누가 생성하는 것이 맞는가
 
-json을 `Info`로 대체하면서 주는 쪽과 받는 쪽을 `Info`라는 규약에 의해 멋지게 격리할 수 있었다. 그런데 한 가지 눈에 걸리는 것이 있는데, `Info` 객체를 생성하는 것이 실제로는 `Data`가 아니라, `JsonData`라는 점이다.
+json을 `Info`로 대체하면서 `Renderer` 쪽에서 검증 로직을 멋지게 제거할 수 있었다.
+
+그런데 한 가지 눈에 걸리는 것이 있는데, `Info` 객체를 생성하는 것이 실제로는 `Data`가 아니라, `JsonData`라는 점이다.
 
 ```javascript
 const Data = class {
@@ -416,7 +418,11 @@ const JsonData = class extends Data{
 };
 ```
 
-`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`Data`의 구현체인 `JsonData`가 `Data` 뿐아니라 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
+`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 
+
+바꿔 말하면, **`Data`의 구현체인 `JsonData`가 `Data` 뿐아니라 `Info`에 대해 알고 있다**는 것이다. 
+
+이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
 
 ![Imgur](http://i.imgur.com/k81mArf.png)
 
@@ -586,7 +592,7 @@ renderer.render(data);
 const Renderer = class{
   async render(data){
     if(!(data instanceof Data)) throw "invalid data type";    // <--여기!!
-    this._info = await data.getData();
+    this._info = await data.getData();    // <--data.getData()가 반환하는 것은 Info!!
     this._render();
   }
   _render(){
