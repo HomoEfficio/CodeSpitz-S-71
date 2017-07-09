@@ -80,7 +80,7 @@
 
 ## Warming Up에서 풀었던 방식
 
-앞서 Warming Up의 `JSON을 읽어서 테이블로 표현하기`를 떠올려보자.
+앞서 [Warming Up](https://github.com/HomoEfficio/CodeSpitz-S-71/blob/master/Day1-01-WarmingUp.md)의 `JSON을 읽어서 테이블로 표현하기`를 떠올려보자.
 
 제목에서 직관적으로 알 수 있듯이 문제를 풀려면,
 
