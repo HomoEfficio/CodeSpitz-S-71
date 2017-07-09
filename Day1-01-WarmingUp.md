@@ -22,85 +22,85 @@ ES2015+로 워밍업 좀 해보자.
 
 <script>
 const Table = (_ => {
-	// 여기는 private static 영역
-	const Private = Symbol();
+  // 여기는 private static 영역
+  const Private = Symbol();
 
-	return class {
-		// 생성자
-		constructor(parent) {
-			// 가드 올려라(Shield Pattern)
-			if (typeof parent != 'string' || !parent) throw "invalid param";
-			this[Private] = {parent};
-		}
-		// load(url) {
-		// 	fetch(url).then(response => {
-		// 		return response.json();
-		// 	}).then(json => {
-		// 		this._render();
-		// 	})
-		// }
+  return class {
+    // 생성자
+    constructor(parent) {
+      // 가드 올려라(Shield Pattern)
+      if (typeof parent != 'string' || !parent) throw "invalid param";
+      this[Private] = {parent};
+    }
+    // load(url) {
+    //   fetch(url).then(response => {
+    //     return response.json();
+    //   }).then(json => {
+    //     this._render();
+    //   })
+    // }
 
-		// public 메서드	
-		// promise 보다 간단한 async/await라는게 있다니 써보자.
-		async load(url) {
-			// url에 대한 가드도 있으면 좋아요!
+    // public 메서드  
+    // promise 보다 간단한 async/await라는게 있다니 써보자.
+    async load(url) {
+      // url에 대한 가드도 있으면 좋아요!
 
-			const response = await fetch(url);
-			// 가드 올려라(Shield Pattern)라
-			if (!response.ok) throw "invalid response";
-			const json = await response.json();
-			const {title, header, items} = json;
-			// 가드 올려라(Shield Pattern)라
-			if (!items.length) throw "no items";
+      const response = await fetch(url);
+      // 가드 올려라(Shield Pattern)라
+      if (!response.ok) throw "invalid response";
+      const json = await response.json();
+      const {title, header, items} = json;
+      // 가드 올려라(Shield Pattern)라
+      if (!items.length) throw "no items";
 
-			Object.assign(this[Private], {title, header, items});
-			this._render();
-		}
+      Object.assign(this[Private], {title, header, items});
+      this._render();
+    }
 
-		// private 메서드
-		_render() {
-			// 부모, 데이터 체크
-			const fields = this[Private];
-			const parent = document.querySelector(fields.parent);
-			// 가드 올려라(Shield Pattern)라
-			if (!parent) throw "invalid parent";
-			if (!fields.items || !fields.items.length) {
-				parent.innerHTML = "no data";
-				return;
-			} else {
-				parent.innerHTML = "";
-			}
-			// Table 생성
-			const table = document.createElement("table");			
-			// Caption 생성
-			const caption = document.createElement("caption");
-			caption.innerHTML = fields.title;
-			table.appendChild(caption);
-			// THEAD, TH 생성
-			table.appendChild(
-				fields.header.reduce((thead, data) => {
-					const th = document.createElement("th");
-					th.innerHTML = data;
-					thead.appendChild(th);
-					return thead;
-				}, document.createElement("thead"))
-			);
-			// TR, TD 생성 및 부모에 TABLE 추가
-			parent.appendChild(
-				fields.items.reduce((table, row) => {
-					table.appendChild(
-						row.reduce((tr, col) => {
-							const td = document.createElement("td");
-							td.innerHTML = col;
-							tr.appendChild(td);
-							return tr;
-						}, document.createElement("tr"))
-					)
-					return table;
-				}, table)
-			);
-		}
-	};
+    // private 메서드
+    _render() {
+      // 부모, 데이터 체크
+      const fields = this[Private];
+      const parent = document.querySelector(fields.parent);
+      // 가드 올려라(Shield Pattern)라
+      if (!parent) throw "invalid parent";
+      if (!fields.items || !fields.items.length) {
+        parent.innerHTML = "no data";
+        return;
+      } else {
+        parent.innerHTML = "";
+      }
+      // Table 생성
+      const table = document.createElement("table");      
+      // Caption 생성
+      const caption = document.createElement("caption");
+      caption.innerHTML = fields.title;
+      table.appendChild(caption);
+      // THEAD, TH 생성
+      table.appendChild(
+        fields.header.reduce((thead, data) => {
+          const th = document.createElement("th");
+          th.innerHTML = data;
+          thead.appendChild(th);
+          return thead;
+        }, document.createElement("thead"))
+      );
+      // TR, TD 생성 및 부모에 TABLE 추가
+      parent.appendChild(
+        fields.items.reduce((table, row) => {
+          table.appendChild(
+            row.reduce((tr, col) => {
+              const td = document.createElement("td");
+              td.innerHTML = col;
+              tr.appendChild(td);
+              return tr;
+            }, document.createElement("tr"))
+          )
+          return table;
+        }, table)
+      );
+    }
+  };
 
 })();
 
@@ -136,8 +136,8 @@ table.load("https://gist.githubusercontent.com/hikaMaeng/717dc66225e40a8fe8d1c40
 
 ### fetch
 
-- XHR을 더 간단한 방식으로 대체하는 ES2015+의 새로운 기능
-
+- XHR을 더 간단한 방식으로 대체하는 ~ES2015+의 새로운 기능이 아니라~ 브라우저에서 제공하는 API
+ 
 ### Object.assign()
 
 - 객체를 복사해서 할당(assign). 이걸 보자. https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
