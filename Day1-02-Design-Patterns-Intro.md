@@ -101,21 +101,21 @@
 Warming Up에서 데이터를 가져오는 부분의 소스는 다음과 같다.
 
 ```javascript
-	async load(url) {
-		// url에 대한 가드도 있으면 좋아요!
+  async load(url) {
+    // url에 대한 가드도 있으면 좋아요!
 
-		const response = await fetch(url);
-		// 가드 올려라(Shield Pattern)
-		if (!response.ok) throw "invalid response";
-		const json = await response.json();
-		console.log('json:', json);
-		const {title, header, items} = json;
-		// 가드 올려라(Shield Pattern)
-		if (!items.length) throw "no items";
+    const response = await fetch(url);
+    // 가드 올려라(Shield Pattern)
+    if (!response.ok) throw "invalid response";
+    const json = await response.json();
+    console.log('json:', json);
+    const {title, header, items} = json;
+    // 가드 올려라(Shield Pattern)
+    if (!items.length) throw "no items";
 
-		Object.assign(this[Private], {title, header, items});
-		this._render();
-	}
+    Object.assign(this[Private], {title, header, items});
+    this._render();
+  }
 ```
 
 위 코드는 크게 데이터를 가져오는 부분(fetch)과 그리는 부분(_render)으로 나눌 수 있다.
@@ -135,16 +135,16 @@ renderer.render(data);
 
 ```javascript
 const DataLoad = class {
-	constructor(data) {
-		this._data = data;
-	}
+  constructor(data) {
+    this._data = data;
+  }
 
-	async getData() {
-		if (typeof this._data == 'string') {
-			const response = await fetch(this._data);
-			return await response.json();
-		} else return this._data;
-	}
+  async getData() {
+    if (typeof this._data == 'string') {
+      const response = await fetch(this._data);
+      return await response.json();
+    } else return this._data;
+  }
 }
 ```
 
@@ -152,13 +152,13 @@ const DataLoad = class {
 
 ```javascript
 const Renderer = class {
-	constructor() {}
-	async render(data) {
-		if (!(data instanceof JsonData)) throw "invalid data type";
-		const json = await data.getData();
+  constructor() {}
+  async render(data) {
+    if (!(data instanceof JsonData)) throw "invalid data type";
+    const json = await data.getData();
 
-		// 아까 그렸던 방법으로 그린다.
-	}
+    // 아까 그렸던 방법으로 그린다.
+  }
 }
 ```
 
@@ -174,27 +174,27 @@ const Renderer = class {
 
 ```javascript
 const DataLoad = class {
-	constructor(data) {
-		this._data = data;
-	}
+  constructor(data) {
+    this._data = data;
+  }
 
-	async getData() {
-		if (typeof this._data == 'string') {
-			const response = await fetch(this._data);
-			return await response.json();    // <-- 여기!!
-		} else return this._data;
-	}
+  async getData() {
+    if (typeof this._data == 'string') {
+      const response = await fetch(this._data);
+      return await response.json();    // <-- 여기!!
+    } else return this._data;
+  }
 }
 
 
 const Renderer = class {
-	constructor() {}
-	async render(data) {
-		if (!(data instanceof JsonData)) throw "invalid data type";
-		const json = await data.getData();    // <-- 여기!!
+  constructor() {}
+  async render(data) {
+    if (!(data instanceof JsonData)) throw "invalid data type";
+    const json = await data.getData();    // <-- 여기!!
 
-		// 아까 그렸던 방법으로 그린다.
-	}
+    // 아까 그렸던 방법으로 그린다.
+  }
 }
 ```
 
@@ -222,23 +222,23 @@ const Renderer = class {
 
 ```javascript
 const DataLoad = class {
-	constructor(data) {
-		this._data = data;
-	}
+  constructor(data) {
+    this._data = data;
+  }
 
-	async getData() {
-		switch(source) {
-			case 'json':
-				// json loading...
-			break;
-			case 'xml':
-				// xml loading...
-			break;
-			case 'csv':
-				// csv loading...
-			break;
-		}
-	}
+  async getData() {
+    switch(source) {
+      case 'json':
+        // json loading...
+      break;
+      case 'xml':
+        // xml loading...
+      break;
+      case 'csv':
+        // csv loading...
+      break;
+    }
+  }
 }
 ```
 
@@ -256,35 +256,35 @@ const DataLoad = class {
 
 ```javascript
 const DataLoad = class {
-	async getData() { throw "getData must override"; }
+  async getData() { throw "getData must override"; }
 };
 
 const JsonData = class extends DataLoad {
-	constructor(data){
-		super();
-		this._data = data;
-	}
+  constructor(data){
+    super();
+    this._data = data;
+  }
 
-	async getData(){
-		if(typeof this._data == 'string'){
-			const response = await fetch(this._data);
-			return await response.json();
-		}else return this._data;
-	}
+  async getData(){
+    if(typeof this._data == 'string'){
+      const response = await fetch(this._data);
+      return await response.json();
+    }else return this._data;
+  }
 };
 
 const XmlData = class extends DataLoad {
-	constructor(data){
-		super();
-		this._data = data;
-	}
+  constructor(data){
+    super();
+    this._data = data;
+  }
 
-	async getData(){
-		if(typeof this._data == 'string'){
-			const response = await fetch(this._data);
-			return await response.xml();
-		}else return this._data;
-	}
+  async getData(){
+    if(typeof this._data == 'string'){
+      const response = await fetch(this._data);
+      return await response.xml();
+    }else return this._data;
+  }
 };
 ```
 
@@ -320,21 +320,21 @@ dataLoad.getData();  // xml 데이터 반환
 
 ```javascript
 const Info = class{
-	constructor(json){
-		const {title, header, items} = json;
-		if(typeof title != 'string' || !title) throw "invalid title";
-		if(!Array.isArray(header) || !header.length) throw "invalid header";
-		if(!Array.isArray(items) || !items.length) throw "invalid items";
-		items.forEach((v, idx)=>{
-			if(!Array.isArray(v) || v.length != header.length){
-				throw "invalid items:" + idx;
-			}
-		});
-		this._private = {title, header, items};
-	}
-	get title(){return this._private.title;}
-	get header(){return this._private.header;}
-	get items(){return this._private.items;}
+  constructor(json){
+    const {title, header, items} = json;
+    if(typeof title != 'string' || !title) throw "invalid title";
+    if(!Array.isArray(header) || !header.length) throw "invalid header";
+    if(!Array.isArray(items) || !items.length) throw "invalid items";
+    items.forEach((v, idx)=>{
+      if(!Array.isArray(v) || v.length != header.length){
+        throw "invalid items:" + idx;
+      }
+    });
+    this._private = {title, header, items};
+  }
+  get title(){return this._private.title;}
+  get header(){return this._private.header;}
+  get items(){return this._private.items;}
 };
 ```
 
@@ -352,18 +352,18 @@ const Info = class{
 
 ```javascript
 const JsonData = class extends Data{
-	constructor(data){
-		super();
-		this._data = data;
-	}
-	async getData(){
-		let json;
-		if(typeof this._data == 'string'){
-			const response = await fetch(this._data);
-			json = await response.json();
-		}else json = this._data;
-		return new Info(json);    // <--여기!!
-	}
+  constructor(data){
+    super();
+    this._data = data;
+  }
+  async getData(){
+    let json;
+    if(typeof this._data == 'string'){
+      const response = await fetch(this._data);
+      json = await response.json();
+    }else json = this._data;
+    return new Info(json);    // <--여기!!
+  }
 };
 ```
 
@@ -373,27 +373,27 @@ json을 `Info`로 대체하면서 주는 쪽과 받는 쪽을 `Info`라는 규�
 
 ```javascript
 const DataLoad = class {
-	async getData() { throw "getData must override"; }
+  async getData() { throw "getData must override"; }
 };
 
 const JsonData = class extends Data{
-	constructor(data){
-		super();
-		this._data = data;
-	}
+  constructor(data){
+    super();
+    this._data = data;
+  }
 
-	async getData(){
-		let json;
-		if (typeof this._data == 'string') {
-			const response = await fetch(this._data);
-			json = await response.json();
-		} else json = this._data;
-		return new Info(json);    // <--여기!!
-	}
+  async getData(){
+    let json;
+    if (typeof this._data == 'string') {
+      const response = await fetch(this._data);
+      json = await response.json();
+    } else json = this._data;
+    return new Info(json);    // <--여기!!
+  }
 };
 ```
 
-`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`DataLoad`의 구현체인 `JsonData`가 `DataLoad`와 `Renderer` 사이의 규약인 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
+`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`DataLoad`의 구현체인 `JsonData`가 `DataLoad`와 `Renderer` 사이의 규약인 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 알 수 있다.
 
 ![Imgur](http://i.imgur.com/GNWXc0E.png)
 
@@ -405,25 +405,25 @@ const JsonData = class extends Data{
 
 ```javascript
 const Data = class {
-	async getData() {
-		const json = await this._getData();
-		return new Info(json);      // <--여기!!
-	}
-	async _getData() {      // <--여기!!
-		throw "_getData must overrided";
-	}
+  async getData() {
+    const json = await this._getData();
+    return new Info(json);      // <--여기!!
+  }
+  async _getData() {      // <--여기!!
+    throw "_getData must overrided";
+  }
 };
 const JsonData = class extends Data {
-	constructor(data) {
-		super();
-		this._data = data;
-	}
-	async _getData() {      // <--여기!!
-		if (typeof this._data == 'string') {
-			const response = await fetch(this._data);
-			return await response.json();
-		} else return this._data;
-	}
+  constructor(data) {
+    super();
+    this._data = data;
+  }
+  async _getData() {      // <--여기!!
+    if (typeof this._data == 'string') {
+      const response = await fetch(this._data);
+      return await response.json();
+    } else return this._data;
+  }
 };
 ```
 
@@ -458,82 +458,82 @@ const JsonData = class extends Data {
 <section id="data"></section>
 <script>
 const Info = class{
-	constructor(json){
-		const {title, header, items} = json;
-		if(typeof title != 'string' || !title) throw "invalid title";
-		if(!Array.isArray(header) || !header.length) throw "invalid header";
-		if(!Array.isArray(items) || !items.length) throw "invalid items";
-		items.forEach((v, idx)=>{
-			if(!Array.isArray(v) || v.length != header.length) throw "invalid items:" + idx + ":" +v + ":" + v.length + ":" + header.length;
-		});
-		this._private = {title, header, items};
-	}
-	get title(){return this._private.title;}
-	get header(){return this._private.header;}
-	get items(){return this._private.items;}
+  constructor(json){
+    const {title, header, items} = json;
+    if(typeof title != 'string' || !title) throw "invalid title";
+    if(!Array.isArray(header) || !header.length) throw "invalid header";
+    if(!Array.isArray(items) || !items.length) throw "invalid items";
+    items.forEach((v, idx)=>{
+      if(!Array.isArray(v) || v.length != header.length) throw "invalid items:" + idx + ":" +v + ":" + v.length + ":" + header.length;
+    });
+    this._private = {title, header, items};
+  }
+  get title(){return this._private.title;}
+  get header(){return this._private.header;}
+  get items(){return this._private.items;}
 }
 const Data = class{
-	async getData(){
-		const json = await this._getData();
-		return new Info(json);
-	}
-	async _getData(){
-		throw "_getData must overrided";
-	}
+  async getData(){
+    const json = await this._getData();
+    return new Info(json);
+  }
+  async _getData(){
+    throw "_getData must overrided";
+  }
 };
 
 const JsonData = class extends Data{
-	constructor(data){
-		super();
-		this._data = data;
-	}
-	async _getData(){
-		let json;
-		if(typeof this._data == 'string'){
-			const response = await fetch(this._data);
-			return await response.json();
-		}else return this._data;
-	}
+  constructor(data){
+    super();
+    this._data = data;
+  }
+  async _getData(){
+    let json;
+    if(typeof this._data == 'string'){
+      const response = await fetch(this._data);
+      return await response.json();
+    }else return this._data;
+  }
 };
 
 const Renderer = class{
-	async render(data){
-		if(!(data instanceof Data)) throw "invalid data type";
-		this._info = await data.getData();
-		this._render();
-	}
-	_render(){
-		throw "_render must overried";
-	}
+  async render(data){
+    if(!(data instanceof Data)) throw "invalid data type";
+    this._info = await data.getData();
+    this._render();
+  }
+  _render(){
+    throw "_render must overried";
+  }
 }
 const TableRenderer = class extends Renderer{
-	constructor(parent){
-		if(typeof parent != 'string' || !parent) throw "invalid param";
-		super();
-		this._parent = parent;
-	}
-	_render(){
-		const parent = document.querySelector(this._parent);
-		if(!parent) throw "invaild parent";
-		parent.innerHTML = "";
-		const [table, caption] = "table,caption".split(",").map(v=>document.createElement(v));
-		caption.innerHTML = this._info.title;
-		table.appendChild(caption);
-		table.appendChild(
-			this._info.header.reduce(
-				(thead, data)=>(thead.appendChild(document.createElement("th")).innerHTML = data, thead),
-				document.createElement("thead"))
-		);
-		parent.appendChild(
-			this._info.items.reduce(
-				(table, row)=>(table.appendChild(
-					row.reduce(
-						(tr, data)=>(tr.appendChild(document.createElement("td")).innerHTML = data, tr),
-						document.createElement("tr"))
-				), table),
-				table)
-		);
-	}
+  constructor(parent){
+    if(typeof parent != 'string' || !parent) throw "invalid param";
+    super();
+    this._parent = parent;
+  }
+  _render(){
+    const parent = document.querySelector(this._parent);
+    if(!parent) throw "invaild parent";
+    parent.innerHTML = "";
+    const [table, caption] = "table,caption".split(",").map(v=>document.createElement(v));
+    caption.innerHTML = this._info.title;
+    table.appendChild(caption);
+    table.appendChild(
+      this._info.header.reduce(
+        (thead, data)=>(thead.appendChild(document.createElement("th")).innerHTML = data, thead),
+        document.createElement("thead"))
+    );
+    parent.appendChild(
+      this._info.items.reduce(
+        (table, row)=>(table.appendChild(
+          row.reduce(
+            (tr, data)=>(tr.appendChild(document.createElement("td")).innerHTML = data, tr),
+            document.createElement("tr"))
+        ), table),
+        table)
+    );
+  }
 }
 
 const data = new JsonData("https://gist.githubusercontent.com/hikaMaeng/717dc66225e40a8fe8d1c40366d40957/raw/447d44b800ed98817b0d29681be90aa1ec36e4ac/71_1.json");
@@ -563,14 +563,14 @@ renderer.render(data);
 
 ```javascript
 const Renderer = class{
-	async render(data){
-		if(!(data instanceof Data)) throw "invalid data type";    // <--여기!!
-		this._info = await data.getData();
-		this._render();
-	}
-	_render(){
-		throw "_render must overried";
-	}
+  async render(data){
+    if(!(data instanceof Data)) throw "invalid data type";    // <--여기!!
+    this._info = await data.getData();
+    this._render();
+  }
+  _render(){
+    throw "_render must overried";
+  }
 }
 ```
 
@@ -586,15 +586,15 @@ const Renderer = class{
 
 ```javascript
 const Renderer = class {
-	async render(info) {    // <--Info를 전달받는다.
-		if (!(info instanceof Info)) throw "data is NOT Info type";
-		this._info = info;		
-		this._render();
-	}
+  async render(info) {    // <--Info를 전달받는다.
+    if (!(info instanceof Info)) throw "data is NOT Info type";
+    this._info = info;    
+    this._render();
+  }
 
-	_render() {
-		throw "render must be overriden."
-	}
+  _render() {
+    throw "render must be overriden."
+  }
 }
 ```
 
@@ -608,8 +608,8 @@ const data = new JsonData("https://gist.githubusercontent.com/hikaMaeng/717dc662
 
 const infoPromise = data.getData();
 infoPromise.then(info => {
-	const renderer = new TableRenderer("#data");
-	renderer.render(info);	  // <--Info를 전달한다.
+  const renderer = new TableRenderer("#data");
+  renderer.render(info);    // <--Info를 전달한다.
 });
 ```
 
@@ -623,17 +623,17 @@ infoPromise.then(info => {
 
 ```javascript
 const TableRenderer = class extends Renderer {
-	constructor(parent) {
-		if (typeof parent != 'string' || !parent) throw "invalid param";
-		super();
-		this._parent = parent;
-	}
-	_render() {
-		const parent = document.querySelector(this._parent);
-		if(!parent) throw "invaild parent";
-		parent.innerHTML = "";
-		const [table, caption] = "table,caption".split(",").map(v=>document.createElement(v));
-		caption.innerHTML = this._info.title;    // <--여기!!
+  constructor(parent) {
+    if (typeof parent != 'string' || !parent) throw "invalid param";
+    super();
+    this._parent = parent;
+  }
+  _render() {
+    const parent = document.querySelector(this._parent);
+    if(!parent) throw "invaild parent";
+    parent.innerHTML = "";
+    const [table, caption] = "table,caption".split(",").map(v=>document.createElement(v));
+    caption.innerHTML = this._info.title;    // <--여기!!
 ```
 
 `TableRenderer`가 `this._info`라는 부모 객체의 속성을 통해 `this._info.title`이라는 값에 접근하고 있으므로 문제될 게 없어 보인다.
@@ -652,33 +652,33 @@ const TableRenderer = class extends Renderer {
 
 ```javascript
 const Renderer = class {
-	async render(info) {
-		if (!(info instanceof Info)) throw "data is NOT Info type";
-		// this._info = info;
-		this._title = info.title;      // <--여기!!
-		this._headers = info.headers;  // <--여기!!
-		this._items = info.items;      // <--여기!!
-		this._render();
-	}
+  async render(info) {
+    if (!(info instanceof Info)) throw "data is NOT Info type";
+    // this._info = info;
+    this._title = info.title;      // <--여기!!
+    this._headers = info.headers;  // <--여기!!
+    this._items = info.items;      // <--여기!!
+    this._render();
+  }
 
-	_render() {
-		throw "render must be overriden."
-	}
+  _render() {
+    throw "render must be overriden."
+  }
 }
 
 const TableRenderer = class extends Renderer {
-	constructor(parent) {
-		if (typeof parent != 'string' || !parent) throw "invalid param";
-		super();
-		this._parent = parent;
-	}
-	_render() {
-		const parent = document.querySelector(this._parent);
-		if(!parent) throw "invaild parent";
-		parent.innerHTML = "";
-		const [table, caption] = "table,caption".split(",").map(v=>document.createElement(v));
-		// caption.innerHTML = this._info.title;
-		caption.innerHTML = this._title;    // <--여기!! 이하 this._info.header와 this._info.items도 바뀐다.
+  constructor(parent) {
+    if (typeof parent != 'string' || !parent) throw "invalid param";
+    super();
+    this._parent = parent;
+  }
+  _render() {
+    const parent = document.querySelector(this._parent);
+    if(!parent) throw "invaild parent";
+    parent.innerHTML = "";
+    const [table, caption] = "table,caption".split(",").map(v=>document.createElement(v));
+    // caption.innerHTML = this._info.title;
+    caption.innerHTML = this._title;    // <--여기!! 이하 this._info.header와 this._info.items도 바뀐다.
 ```
 
 `TableRenderer`는 `Info`에 대해서는 전혀 모르고 그저 부모인 `Renderer`에 `_title` 속성이 있다는 것만 알면 된다.
@@ -700,116 +700,116 @@ const TableRenderer = class extends Renderer {
 
 <script>
 const Info = class {
-	constructor(json) {
-		// json에는 가드 올리지 않은 이유: destructuring 중 예외 발생 시 JavaScript가 throw 해주니까
-		const {title, header, items} = json;
-		
-		// 가드 올려라(Shield Pattern)
-		if(typeof title != 'string' || !title) throw "invalid title";
-		if(!Array.isArray(header) || !header.length) throw "invalid header";
-		if(!Array.isArray(items) || !items.length) throw "invalid items";
-		// items.forEach((item, idx) => {
-		// 	if (!Array.isArray(item) || item.length != header.length) {
-		// 		throw `${idx}th item is invalid`;
-		// 	}
-		// });
-		// this._private = {title, headers: header, items};
+  constructor(json) {
+    // json에는 가드 올리지 않은 이유: destructuring 중 예외 발생 시 JavaScript가 throw 해주니까
+    const {title, header, items} = json;
+    
+    // 가드 올려라(Shield Pattern)
+    if(typeof title != 'string' || !title) throw "invalid title";
+    if(!Array.isArray(header) || !header.length) throw "invalid header";
+    if(!Array.isArray(items) || !items.length) throw "invalid items";
+    // items.forEach((item, idx) => {
+    //   if (!Array.isArray(item) || item.length != header.length) {
+    //     throw `${idx}th item is invalid`;
+    //   }
+    // });
+    // this._private = {title, headers: header, items};
 
-		// 또는 아래와 같이 filter를 써서 
-		// invalid item은 누락시키고 valid한 item만으로 Info를 구성할 수도 있다.
-		const validItems = items.filter((item) => (Array.isArray(item) && item.length === header.length));
-		this._private = {title, headers: header, items: validItems};
-	}
+    // 또는 아래와 같이 filter를 써서 
+    // invalid item은 누락시키고 valid한 item만으로 Info를 구성할 수도 있다.
+    const validItems = items.filter((item) => (Array.isArray(item) && item.length === header.length));
+    this._private = {title, headers: header, items: validItems};
+  }
 
-	get title() { return this._private.title; }
-	get headers() { return this._private.headers; }
-	get items() { return this._private.items; }
+  get title() { return this._private.title; }
+  get headers() { return this._private.headers; }
+  get items() { return this._private.items; }
 };
 
 const DataLoader = class {
-	async getData() {
-		const json = await this._getData();
-		return new Info(json);
-	}
+  async getData() {
+    const json = await this._getData();
+    return new Info(json);
+  }
 
-	async _getData() {
-		throw "_getData() must be overriden."
-	}
+  async _getData() {
+    throw "_getData() must be overriden."
+  }
 };
 
 const JsonData = class extends DataLoader {
-	constructor(url) {
-		super();
-		this._url = url;
-	}
+  constructor(url) {
+    super();
+    this._url = url;
+  }
 
-	async _getData() {
-		let json;
-		if (typeof this._url == 'string') {
-			const response = await fetch(this._url);
-			if (!response.ok) throw "invalid response";
-			json = await response.json();
-		} else {
-			json = this._data;
-		}
-		return json;
-	}
+  async _getData() {
+    let json;
+    if (typeof this._url == 'string') {
+      const response = await fetch(this._url);
+      if (!response.ok) throw "invalid response";
+      json = await response.json();
+    } else {
+      json = this._data;
+    }
+    return json;
+  }
 };
 
 const Renderer = class {
-	async render(info) {
-		if (!(info instanceof Info)) throw "data is NOT Info type";
-		// this._info = info;
-		this._title = info.title;
-		this._headers = info.headers;
-		this._items = info.items;
-		this._render();
-	}
+  async render(info) {
+    if (!(info instanceof Info)) throw "data is NOT Info type";
+    // this._info = info;
+    this._title = info.title;
+    this._headers = info.headers;
+    this._items = info.items;
+    this._render();
+  }
 
-	_render() {
-		throw "render must be overriden."
-	}
+  _render() {
+    throw "render must be overriden."
+  }
 }
 
 const TableRenderer = class extends Renderer {
-	constructor(parent) {
-		if (typeof parent != 'string' || !parent) {
-			throw "invalid parent";
-		}
-		super();
-		this._parent = parent;
-	}
+  constructor(parent) {
+    if (typeof parent != 'string' || !parent) {
+      throw "invalid parent";
+    }
+    super();
+    this._parent = parent;
+  }
 
-	_render() {
-		const parent = document.querySelector(this._parent);
-		if (!parent) throw "invalid parent";    // TODO: 생성자에서의 메시지와 구별되는 메시지로
-		parent.innerHTML = "";
-		const [table, caption] = "table,caption".split(',').map(v => document.createElement(v));
-		// caption.innerHTML = this._info.title;
-		caption.innerHTML = this._title;
-		table.appendChild(caption);
-		table.appendChild(
-			// this._info.headers.reduce(
-			this._headers.reduce(
-				(thead, header) => (thead.appendChild(document.createElement('th')).innerHTML = header, thead),
-				document.createElement('thead')
-			)
-		);
-		parent.appendChild(
-			// this._info.items.reduce(
-			this._items.reduce(
-				(table, row) => (
-					table.appendChild(
-						row.reduce(
-							(tr, col) => (tr.appendChild(document.createElement('td')).innerHTML = col, tr),
-							document.createElement('tr')
-						)
-					), table
-				),
-				table
-			)
-		);
-	}
+  _render() {
+    const parent = document.querySelector(this._parent);
+    if (!parent) throw "invalid parent";    // TODO: 생성자에서의 메시지와 구별되는 메시지로
+    parent.innerHTML = "";
+    const [table, caption] = "table,caption".split(',').map(v => document.createElement(v));
+    // caption.innerHTML = this._info.title;
+    caption.innerHTML = this._title;
+    table.appendChild(caption);
+    table.appendChild(
+      // this._info.headers.reduce(
+      this._headers.reduce(
+        (thead, header) => (thead.appendChild(document.createElement('th')).innerHTML = header, thead),
+        document.createElement('thead')
+      )
+    );
+    parent.appendChild(
+      // this._info.items.reduce(
+      this._items.reduce(
+        (table, row) => (
+          table.appendChild(
+            row.reduce(
+              (tr, col) => (tr.appendChild(document.createElement('td')).innerHTML = col, tr),
+              document.createElement('tr')
+            )
+          ), table
+        ),
+        table
+      )
+    );
+  }
 }
 
 const data = new JsonData("https://gist.githubusercontent.com/hikaMaeng/717dc66225e40a8fe8d1c40366d40957/raw/447d44b800ed98817b0d29681be90aa1ec36e4ac/71_1.json");
@@ -819,8 +819,8 @@ const data = new JsonData("https://gist.githubusercontent.com/hikaMaeng/717dc662
 
 const infoPromise = data.getData();
 infoPromise.then(info => {
-	const renderer = new TableRenderer("#data");
-	renderer.render(info);	
+  const renderer = new TableRenderer("#data");
+  renderer.render(info);  
 });
 </script>
 </body>
