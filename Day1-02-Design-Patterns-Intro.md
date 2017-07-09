@@ -157,7 +157,7 @@ const Renderer = class {
     if (!(data instanceof JsonData)) throw "invalid data type";
     const json = await data.getData();
 
-    // 아까 그렸던 방법으로 그린다.
+    // 이하 Warming Up에서 그렸던 방법으로 그린다.
   }
 }
 ```
@@ -166,14 +166,145 @@ const Renderer = class {
 
 짠~ 이제 객체 지향 완료?
 
-객체 지향은 맞는데 완료는 아니다. 아직 더 객체 지향스럽게 만들 여지가 많다. 먼저 눈에 띄는 부분은 **`값`을 주고 받는 부분**이다.
+객체 지향은 맞는데 완료는 아니다. 아직 더 객체 지향스럽게 만들 여지가 많다.
+
+## DataLoad에서 Data로
+
+지금은 데이터를 외부에서 읽어오게 되어 있지만, 외부에서 읽어오지 않고 그냥 코드 내에서 데이터를 생성할 수도 있다.
+
+이렇게 되면 `DataLoad`라는 이름이 적절하지 않아 보인다. 즉, 이름에 `Load`를 붙이니 데이터를 외부에서 로딩하는 방식이라는 테두리에 갇히게 된다.
+
+데이터를 사용하는 쪽, 그러니까 그리는 쪽에서는 사실 외부에서 읽어온 것이든 내부에서 생성한 것이든 아무 관심이 없다. 그저 그릴 데이터가 있으면 된다.
+
+따라서 `DataLoad`를 `Data`로 이름을 바꾸자.
+
+```javascript
+const Data = class {    // <--이름 변경!!
+  constructor(data) {
+    this._data = data;
+  }
+
+  async getData() {
+    if (typeof this._data == 'string') {
+      const response = await fetch(this._data);
+      return await response.json();
+    } else return this._data;
+  }
+}
+```
+
+*참고: 강의 자료에는 `DataSupplier`라고 표시되어 있는 부분인데, 개인적인 의견으로는 이와 같이 순수하게 데이터라는 의도라면 `DataSupplier`보다 `DataSource`라는 이름이 더 적절할 것 같다. `Supplier`라고 하면 데이터를 공급해 줄 대상을 알고, 그 대상에게 직접 데이터를 공급해주는 역할이 있을 거라고 짐작하게 되는데, 실제로는 그런 역할 없이 그냥 데이터 그 자체이기 때문이다.*
+
+## 데이터의 종류의 변화
+
+데이터로서 어딘가에 사용된다는 역할은 그대로인데, 그 데이터의 종류는 달라질 수 있다.
+
+지금은 JSON 데이터를 읽어오지만, XML 데이터를 읽어올 수도 있고, CSV 데이터를 읽어올 수도 있다. 그리고 외부에서 읽지 않고 그저 내부에서 직접 JSON 데이터를 생성할 수도 있다.
+
+그렇게 되면 현재의 `Data`에 변경이 발생한다. 그 변경의 모습은 여러 가지가 있겠지만, 대략 다음과 같이 어딘가에 조건문이 심어질 것이다.
+
+```javascript
+const Data = class {
+  constructor(data) {
+    this._data = data;
+  }
+
+  async getData() {
+    switch(source) {
+      case 'json':
+        // json data...
+      break;
+      case 'xml':
+        // xml data...
+      break;
+      case 'csv':
+        // csv data...
+      break;
+    }
+  }
+}
+```
+
+이렇게 되면 데이터의 종류가 추가될 때마다 조건문이 추가되어 코드에 변경이 필요하게 된다.
+
+## 상속의 도입
+
+데이터로서 어딘가에 사용된다는 것은 그대로인데, 데이터의 종류는 달라질 수 있다. 즉, **하나는 그대로인데 다른 하나는 달라질 수 있다는 건 변화율이 다르다는 얘기**다.
+
+그래서 **변화율에 따라 작성하기**라는 원칙에 따라, 데이터로서 외부에 제공되는 부분과 데이터의 종류에 따라 다르게 처리하는 부분을 아래와 같이 상속 관계로 나눌 수 있다.
+
+![Imgur](http://i.imgur.com/nyDe4Tl.png)
+
+*참고: 동일한 상황이지만 '데이터와 데이터의 종류'로 분리한다면 상속이 적합하고, '데이터와 데이터의 생성 방식'으로 분리한다면 상속보다는 구성(composition)이 적합할 수 있다.*
+
+상속을 이용하면 코드는 다음과 같이 작성된다.
+
+```javascript
+const Data = class {
+  async getData() { throw "getData must override"; }
+};
+
+const JsonData = class extends Data {
+  constructor(data){
+    super();
+    this._data = data;
+  }
+
+  async getData(){
+    if(typeof this._data == 'string'){
+      const response = await fetch(this._data);
+      return await response.json();
+    }else return this._data;
+  }
+};
+
+const XmlData = class extends Data {
+  constructor(data){
+    super();
+    this._data = data;
+  }
+
+  async getData(){
+    if(typeof this._data == 'string'){
+      const response = await fetch(this._data);
+      return await response.xml();
+    }else return this._data;
+  }
+};
+```
+
+부모 객체인 `Data`의 `getData()`는 자식 객체인 `JsonData`, `XmlData`에 의해 override 된다.
+
+이렇게 하면 데이터의 종류가 달라져도, 아래와 같이 달라진 구현체만 넣어주면 될 뿐 `Data`에 조건문이 필요하지 않으며, 따라서 코드도 달라질 필요가 없게 된다.
+
+```javascript
+// json 일 때 
+const data = new JsonData(jsonDataSource);
+data.getData();  // json 데이터 반환
+
+// xml 일 때
+const data = new XmlData(xmlDataSource);
+data.getData();  // xml 데이터 반환
+```
+
+이런 **상속에 의한 분리**는 데이터 읽어오기에만 해당되는 것이 아니라 그리기에도 해당된다. 
+
+지금은 테이블에 그리기를 하고 있지만, 동일한 데이터로 엑셀에 그릴 수도 있고, 다른 그리드 라이브러리에 그릴 수도 있다. 
+
+그렇다면 `Renderer`도 상속을 통해 분리할 수 있다.
+
+상속을 통한 분리 과정은 `Data`와 거의 같으므로 `Renderer`에 대해서는 코드 설명 없이 그냥 최종 코드를 보는 것으로 하고 넘어간다.
+
+오~ 이쯤 되니 객체 지향 향내가 진동하는 것 같다.
+
+하지만, 아직 멀었다. ㅋㅋ 다음에 살펴볼 부분은 **`값`을 주고 받는 부분**이다.
 
 ## 값과 객체
 
 코드를 다시 보자.
 
 ```javascript
-const DataLoad = class {
+const Data = class {
   constructor(data) {
     this._data = data;
   }
@@ -193,7 +324,7 @@ const Renderer = class {
     if (!(data instanceof JsonData)) throw "invalid data type";
     const json = await data.getData();    // <-- 여기!!
 
-    // 아까 그렸던 방법으로 그린다.
+    // 이하 Warming Up에서 그렸던 방법으로 그린다.
   }
 }
 ```
@@ -208,115 +339,7 @@ const Renderer = class {
 
 그렇다. 하지만 객체에는 일정한 Type을 부여할 수 있으므로, 값으로 전달하는 것보다는 객체로 전달하는 것이 편리하다.
 
-그 외에도 값과 관련하여 더 중요한 근본적인 문제가 하나 있지만, 일단은 여기까지만 짚고 다음으로 넘어가자.
-
-다음 문제는 데이터 읽어오기라는 역할의 내부와 그리기라는 역할의 내부에서 발견할 수 있다.
-
-## 데이터를 읽어오는 방식의 변화
-
-데이터를 읽어오는 역할은 그대로인데, 그 역할 내에서의 방식은 달라질 수 있다.
-
-지금은 JSON 데이터를 읽어오지만, XML 데이터를 읽어올 수도 있고, CSV 데이터를 읽어올 수도 있다. 그렇게 되면 현재의 `DataLoad`에 변경이 발생한다. 
-
-그 변경의 모습은 여러 가지가 있겠지만, 대략 다음과 같이 어딘가에 조건문이 심어질 것이다.
-
-```javascript
-const DataLoad = class {
-  constructor(data) {
-    this._data = data;
-  }
-
-  async getData() {
-    switch(source) {
-      case 'json':
-        // json loading...
-      break;
-      case 'xml':
-        // xml loading...
-      break;
-      case 'csv':
-        // csv loading...
-      break;
-    }
-  }
-}
-```
-
-이렇게 되면 데이터를 읽어오는 방식이 추가될 때마다 조건문이 추가되어 코드에 변경이 필요하게 된다.
-
-## 상속의 도입
-
-데이터를 읽어오는 것은 그대로인데 데이터를 읽어오는 방식이 달라질 수 있다. 즉, **하나는 그대로인데 다른 하나는 달라질 수 있다는 건 변화율이 다르다는 얘기**다.
-
-그래서 **변화율에 따라 작성하기**라는 원칙에 따라, 데이터를 읽어오는 것과 읽어오는 방식을 아래와 같이 상속 관계로 나눌 수 있다.
-
-![Imgur](http://i.imgur.com/nyDe4Tl.png)
-
-데이터 가져오기는 다음과 같이 작성된다.
-
-```javascript
-const DataLoad = class {
-  async getData() { throw "getData must override"; }
-};
-
-const JsonData = class extends DataLoad {
-  constructor(data){
-    super();
-    this._data = data;
-  }
-
-  async getData(){
-    if(typeof this._data == 'string'){
-      const response = await fetch(this._data);
-      return await response.json();
-    }else return this._data;
-  }
-};
-
-const XmlData = class extends DataLoad {
-  constructor(data){
-    super();
-    this._data = data;
-  }
-
-  async getData(){
-    if(typeof this._data == 'string'){
-      const response = await fetch(this._data);
-      return await response.xml();
-    }else return this._data;
-  }
-};
-```
-
-부모 객체인 `DataLoad`의 `getData()`는 자식 객체인 `JsonData`, `XmlData`에 의해 override 된다.
-
-이렇게 하면 데이터를 읽어오는 방식이 달라지면, 아래와 같이 달라진 구현체만 넣어주면 될 뿐 `DataLoad`에 조건문이 필요하지 않으며, 따라서 코드도 달라질 필요가 없게 된다.
-
-```javascript
-// json 일 때 
-const dataLoad = new JsonData(jsonDataSource);
-dataLoad.getData();  // json 데이터 반환
-
-// xml 일 때
-const dataLoad = new XmlData(xmlDataSource);
-dataLoad.getData();  // xml 데이터 반환
-```
-
-이런 **방식의 변화**는 데이터 읽어오기에만 해당되는 것이 아니라 그리기에도 해당된다. 
-
-지금은 테이블에 그리기를 하고 있지만, 동일한 데이터로 엑셀에 그릴 수도 있고, 다른 그리드 라이브러리에 그릴 수도 있다. 
-
-그렇다면 `Renderer`도 상속을 통해 분리할 수 있다. 
-
-상속을 통한 분리 과정은 `DataLoad`와 거의 같으므로 `Renderer`에 대해서는 코드 설명 없이 그냥 최종 코드를 보는 것으로 하고 넘어간다. 
-
-## 값 대신 규약
-
-앞의 값과 객체 에서 잠시 언급했던 문제를 다시 살펴보자.
-
-값으로 주고 받다 보니 받는 쪽에서 검증을 위해 값 하나하나 모두 검증해야만하는 문제가 있고, 이를 해결하기 위해 객체로 보내는 것이 좋겠다고 했다.
-
-그 객체를 `Info`라고 하고 다음과 같이 구현하자.
+그외에도 값과 관련하여 더 중요한 근본적인 문제가 하나 있지만, 일단은 객체로 전달하는 것이 편리하다는 것까지만 머리에 담아두고 JSON 데이터를 담을 `Info`라는 객체를 먼저 만들어보자.
 
 ```javascript
 const Info = class{
@@ -369,10 +392,10 @@ const JsonData = class extends Data{
 
 ## Info 객체를 누가 생성하는 것이 맞는가
 
-json을 `Info`로 대체하면서 주는 쪽과 받는 쪽을 `Info`라는 규약에 의해 멋지게 격리할 수 있었다. 그런데 한 가지 눈에 걸리는 것이 있는데, `Info` 객체를 주는 것이 실제로는 `DataLoad`가 아니라, `JsonData`라는 점이다.
+json을 `Info`로 대체하면서 주는 쪽과 받는 쪽을 `Info`라는 규약에 의해 멋지게 격리할 수 있었다. 그런데 한 가지 눈에 걸리는 것이 있는데, `Info` 객체를 생성하는 것이 실제로는 `Data`가 아니라, `JsonData`라는 점이다.
 
 ```javascript
-const DataLoad = class {
+const Data = class {
   async getData() { throw "getData must override"; }
 };
 
@@ -393,20 +416,18 @@ const JsonData = class extends Data{
 };
 ```
 
-`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`DataLoad`의 구현체인 `JsonData`가 `DataLoad`와 `Renderer` 사이의 규약인 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
+`JsonData`가 직접 `new Info(json)`을 통해 `Info` 객체를 생성하고 있다. 바꿔 말하면, **`Data`의 구현체인 `JsonData`가 `Data` 뿐아니라 `Info`에 대해 알고 있다**는 것이다. 이게 왜 이상한지는 글보다는 객체망 그림으로 보면 훨씬 명백하게 할 수 있다.
 
-![Imgur](http://i.imgur.com/GNWXc0E.png)
+![Imgur](http://i.imgur.com/k81mArf.png)
 
 빨간색 선으로 표시한 것처럼, 뭔가 내부에 있는 것 같은 `JsonData`가 외부와의 협력에 사용되는 `Info`를 직접 알고 있는 것은 일단 모양새부터 이상하다는 게 보인다. 
 
-`JsonData` 같은 **내부 구현체는 `Info`를 모르게 하고, `DataLoad`만 `Info`를 알도록** 하는 게 좋을 것 같다. 
-
-코드를 다음과 같이 바꾸자.
+`JsonData` 같은 **내부 구현체는 `Info`를 모르게 하고, `Data`만 `Info`를 알도록** 하는 게 좋을 것 같다. 이렇게 하려면 `Info`를 `JsonData`가 아니라 `Data`가 생성하게 하면 된다. 
 
 ```javascript
 const Data = class {
   async getData() {
-    const json = await this._getData();
+    const json = await this._getData();      // <--여기!!
     return new Info(json);      // <--여기!!
   }
   async _getData() {      // <--여기!!
@@ -418,7 +439,7 @@ const JsonData = class extends Data {
     super();
     this._data = data;
   }
-  async _getData() {      // <--여기!!
+  async _getData() {      // <--여기에서는 Info를 모른다!!
     if (typeof this._data == 'string') {
       const response = await fetch(this._data);
       return await response.json();
@@ -433,15 +454,15 @@ const JsonData = class extends Data {
 
 ## 내부 계약과 외부 계약
 
-데이터를 읽어오는 것과 그리는 것은 역할 자체가 완전히 다르므로 서로를 **외부인**으로 간주할 수 있다. **외부인으로서 `Info`라는 규약을 통해 협력**하고 있을 뿐이다.
+데이터를 만들어 내는 것과 그리는 것은 역할 자체가 완전히 다르므로 서로를 **외부인**으로 간주할 수 있다. `Data`와 `Renderer`는 **외부인으로서 협력**하고 있을 뿐이다.
 
-반면에 `JsonData`와 `DataLoad`의 관계는 조금 다르다. 데이터를 읽어오는 같은 역할을 하고 있고, **상속을 통해 협력**하고 있다.
+반면에 `JsonData`와 `Data`의 관계는 조금 다르다. 데이터를 읽어오는 같은 역할을 하고 있고, **상속을 통해 협력**하고 있다.
 
->`JsonData`와 `DataLoad`처럼 **상속 관계에 있거나 또는 구성(composition) 관계로 묶여 있는 객체들은 내부 계약으로 묶여 있다**고 한다.
+>`JsonData`와 `Data`처럼 **상속 관계에 있거나 또는 구성(composition) 관계로 묶여 있는 객체들은 내부 계약으로 묶여 있다**고 한다.
 >
->반면에 `DataLoad`와 `Renderer`처럼 `Info`라는 **별도의 규약을 통해 협력하는 관계는 외부 계약으로 묶여 있다**고 한다.
+>반면에 `Data`와 `Renderer`처럼 서로 다른 역할을 하면서 **별도의 규약을 통해 협력하는 관계는 외부 계약으로 묶여 있다**고 한다.
 
-외부 계약은 컴파일 타임에 확정(`Info`를 통해 컴파일 시에 검증 가능)되며, 내부 계약은 런타임에 확정(`DataLoader`의 구현체가 `JsonData`인지 `XmlData`인지는 런타임에 확정)된다.
+외부 계약은 컴파일 타임에 확정(`Info`를 통해 컴파일 시에 검증 가능)되며, 내부 계약은 런타임에 확정(`Data`의 구현체가 `JsonData`인지 `XmlData`인지는 런타임에 확정)된다.
 
 ## (강의에서의) 최종 코드
 
@@ -555,11 +576,11 @@ renderer.render(data);
 
 ## 두 걸음 더 나아가자
 
-*참고: 이 부분은 강의에는 없던 내용입니다. 아마 의도적으로 남겨놓으신 걸로 보이는데 한 번 같이 알아보죠. 제가 잘못 이해한 것일 수도 있으니 참고만 하세요. ^^*
+*참고: 이 부분은 강의에는 없던 내용입니다. 그냥 참고만 하세요. ^^*
 
 ### 1. `Renderer`의 개선점
 
-그런데 최종 코드를 유심히 보면, `Renderer` 쪽에서는 규약으로 정해놓은 `Info` 뿐아니라 `DataLoad`(위 코드에는 `Data`라고 나와있다)에도 의존하고 있는 게 눈에 보인다.
+그런데 최종 코드를 유심히 보면, `Renderer` 쪽에서는 `Info` 뿐아니라 `Data`에도 의존하고 있는 게 눈에 보인다.
 
 ```javascript
 const Renderer = class{
@@ -574,20 +595,20 @@ const Renderer = class{
 }
 ```
 
-그림으로 보면 다음과 같이 이상해 보인다.
+그림으로 보면 다음과 같이 조금 어색해 보인다.
 
-![Imgur](http://i.imgur.com/QINavPN.png)
+![Imgur](http://i.imgur.com/QoH0dTK.png)
 
-`Renderer`는 다음 그림처럼 `Info`에만 의존해야 하지 않을까?
+`Renderer`는 다음 그림처럼 `Info`에만 의존하는게 좋지 않을까?
 
-![Imgur](http://i.imgur.com/9bWVV4F.png)
+![Imgur](http://i.imgur.com/mJhkzd6.png)
 
 위의 그림을 반영하면 `Renderer`는 다음과 같이 바뀐다.
 
 ```javascript
 const Renderer = class {
   async render(info) {    // <--Info를 전달받는다.
-    if (!(info instanceof Info)) throw "data is NOT Info type";
+    if (!(info instanceof Info)) throw "data is NOT Info type";  // <--Info로 체크!!
     this._info = info;    
     this._render();
   }
@@ -613,7 +634,7 @@ infoPromise.then(info => {
 });
 ```
 
-이제 `Renderer`는 `DataLoad`에는 의존하지 않게 되었고, `DataLoad`와 `Renderer`는 `Info`에만 의존하게 되었다.
+이제 `Renderer`는 `Data`에는 의존하지 않고 오직 `Info`에만 의존하게 되었다.
 
 만세!!
 
@@ -644,7 +665,7 @@ const TableRenderer = class extends Renderer {
 
 그림으로 보면 다음과 같다.
 
-![Imgur](http://i.imgur.com/TY3L66e.png)
+![Imgur](http://i.imgur.com/ohIHbhx.png)
 
 이를 해결하려면 `TableRenderer`가 `Info`의 속성을 모르고 `Renderer`의 속성만 알게 하면 된다. 
 
@@ -726,7 +747,7 @@ const Info = class {
   get items() { return this._private.items; }
 };
 
-const DataLoader = class {
+const Data = class {
   async getData() {
     const json = await this._getData();
     return new Info(json);
@@ -737,7 +758,7 @@ const DataLoader = class {
   }
 };
 
-const JsonData = class extends DataLoader {
+const JsonData = class extends Data {
   constructor(url) {
     super();
     this._url = url;
@@ -769,7 +790,7 @@ const Renderer = class {
   _render() {
     throw "render must be overriden."
   }
-}
+};
 
 const TableRenderer = class extends Renderer {
   constructor(parent) {
@@ -810,7 +831,7 @@ const TableRenderer = class extends Renderer {
       )
     );
   }
-}
+};
 
 const data = new JsonData("https://gist.githubusercontent.com/hikaMaeng/717dc66225e40a8fe8d1c40366d40957/raw/447d44b800ed98817b0d29681be90aa1ec36e4ac/71_1.json");
 
