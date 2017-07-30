@@ -51,8 +51,7 @@ const Dr = class {
 	}
 }
 
-
-// 2 - DOM Renderer
+// 2 - DOM Renderer 추가 및 테스트
 const el1 = Dr.el('h1', 'innerHTML', 'ABCDE', '@display', 'inline');
 const el2 = Dr.el('h1', 'innerHTML', 'ZXD', '@display', 'inline');
 const button1 = Dr.el('button', 'innerHTML', 'Show Folder', 'addEventListener', ['click', e => console.log('Folder')]);
@@ -62,7 +61,7 @@ document.getElementById('todo').appendChild(button1);
 
 
 
-// 1 - Data 구조
+// 1 - Task, TaskFolder, TaskItem에 Composite 패턴 적용
 // const root = new TaskFolder('root');
 
 // const item1 = new TaskItem('item1');
