@@ -1,0 +1,274 @@
+<html><head></head><body>
+<section id="todo"></section>
+<script>
+const Element = class {
+	constructor(title, parent) {
+		this._title = title;
+		this._observers = new Set();
+		this._parent = parent;
+	}
+
+	getValue() { return this._getValue(); }
+	_getValue() { throw '_title() should be overriden'; }
+
+	addObserver(observer) { this._observers.add(observer); }
+	removeObserver(observer) { this._observers.delete(observer); }
+	notifyAll() { this._observers.forEach(o => o.update()); }
+
+	removeSelf() {
+		this._parent.remove(this);
+		this.notifyAll();
+		this._observers.forEach(o => this.removeObserver(o));
+	}
+}
+const TaskFolder = class extends Element {
+	constructor(title, parent) {
+		super(title, parent);
+		this._children = [];
+	}
+
+	add(element) {
+		this._children.push(element);
+		this._observers.forEach(o => element.addObserver(o));
+		this.notifyAll();
+	}
+
+	remove(element) {
+		const c = this._children;
+		if (c.includes(element)) c.splice(c.indexOf(element), 1);
+		this.notifyAll();
+	}
+
+	_getValue() {
+		const currentEl = Dr.el('section', '@margin-left', '20px');
+		[
+			Dr.el('h1', 'innerHTML', '\uD83D\uDCC2 '+ this._title),
+			Dr.el('input', 'type', 'text', 'placeholder', '폴더나 작업 이름 입력'),
+			Dr.el('button', 'innerHTML', 'Add Folder', 
+				'addEventListener', ['click', e => {
+					this.add(new TaskFolder(e.target.previousSibling.value, this));
+					}]),
+			Dr.el('button', 'innerHTML', 'Add Item', 
+				'addEventListener', ['click', e => this.add(new TaskItem(e.target.previousSibling.previousSibling.value, this))]),
+			Dr.el('button', 'innerHTML', 'Remove', 
+				'addEventListener', ['click', e => this.removeSelf()]),
+		].forEach(v => currentEl.appendChild(v));
+
+		const c = this._children;
+		for (let i = 0, len = c.length; i < len; i++) {
+			currentEl.appendChild(c[i].getValue());
+		}
+
+		return currentEl;
+	}
+}
+const TaskItem = class extends Element {
+	constructor(title, parent) {
+		super(title, parent);
+		this._isDone = false;
+	}
+
+	done() {
+		this._isDone = true;
+		this.notifyAll();
+	}
+	undone() {
+		this._isDone = false;
+		this.notifyAll();
+	}
+
+	_getValue() {
+		const currentEl = Dr.el('section', '@margin-left', '20px');
+		[
+			Dr.el('h3', '@display', 'inline', 'innerHTML', '\uD83D\uDCCC ' + this._title + (this._isDone ? ' \u2705' : '')),
+			Dr.el('button', 'innerHTML', 'Done', 
+				'addEventListener', ['click', e => this.done()]),
+			Dr.el('button', 'innerHTML', 'Undone', 
+				'addEventListener', ['click', e => this.undone()]),
+			Dr.el('button', 'innerHTML', 'Remove', 
+				'addEventListener', ['click', e => this.removeSelf()]),
+		].forEach(v => currentEl.appendChild(v));
+		return currentEl;
+	}
+}
+
+const Dr = class {
+	static el(tag, ...attr) {
+		const el = document.createElement(tag);
+		for (let i = 0, len = attr.length; i < len;) {
+			const k = attr[i++], v = attr[i++];
+			if (typeof el[k] === 'function') el[k].apply(el, Array.isArray(v) ? v : [v]);
+			else if (k[0] === '@') el.style[k.substr(1)] = v;
+			else el[k] = v;
+		}
+		return el;
+	}
+};
+
+const Observer = class {
+	update() { this._update(); }
+	_update() { throw '_update() should be overriden'; }
+};
+
+const Renderer = class extends Observer {
+	constructor(root, rootElId) {
+		super();
+		this._root = root;
+		this._rootEl = document.getElementById(rootElId);
+	}
+
+	render() {
+		this._rootEl.innerHTML = '';
+		this._rootEl.appendChild(root.getValue());
+	}
+
+	_update() {
+		this.render();
+	}
+};
+
+
+// 8 - TaskFolder에 Add Folder, Add Item, Remove 구현
+const root = new TaskFolder('root', null);
+const renderer = new Renderer(root, 'todo');
+root.addObserver(renderer);
+renderer.render();
+
+
+// 7 - TaskItem Remove 구현 - Remove를 위해 Task에 parent 추가
+// const root = new TaskFolder('root', null);
+
+// const item1 = new TaskItem('item1', root);
+// root.add(item1);
+// const folder1 = new TaskFolder('folder1', root);
+// root.add(folder1);
+
+// const item11 = new TaskItem('item11', folder1);
+// folder1.add(item11);
+// const folder11 = new TaskFolder('folder11', folder1);
+// folder1.add(folder11);
+
+// const folder2 = new TaskFolder('folder2', root);
+// root.add(folder2);
+
+// const renderer = new Renderer(root, 'todo');
+
+// // observer 등록
+// root.addObserver(renderer);
+// item1.addObserver(renderer);
+// folder1.addObserver(renderer);
+// item11.addObserver(renderer);
+// folder11.addObserver(renderer);
+// folder2.addObserver(renderer);
+
+// renderer.render();
+
+
+// 6 - Observer Pattern 적용 - TaskItem의 Done, Undone 가능
+// const root = new TaskFolder('root');
+
+// const item1 = new TaskItem('item1');
+// root.add(item1);
+// const folder1 = new TaskFolder('folder1');
+// root.add(folder1);
+
+// const item11 = new TaskItem('item11');
+// folder1.add(item11);
+// const folder11 = new TaskFolder('folder11');
+// folder1.add(folder11);
+
+// const folder2 = new TaskFolder('folder2');
+// root.add(folder2);
+
+// const renderer = new Renderer(root, 'todo');
+
+// // observer 등록
+// root.addObserver(renderer);
+// item1.addObserver(renderer);
+// folder1.addObserver(renderer);
+// item11.addObserver(renderer);
+// folder11.addObserver(renderer);
+// folder2.addObserver(renderer);
+
+// renderer.render();
+
+
+
+// 5 - Item Done, Undone 핸들러 구현 시 문제 발견(TaskItem이 Renderer를 알고 있어야 한다는..)
+// const root = new TaskFolder('root');
+
+// const item1 = new TaskItem('item1');
+// root.add(item1);
+// const folder1 = new TaskFolder('folder1');
+// root.add(folder1);
+
+// const item11 = new TaskItem('item11');
+// folder1.add(item11);
+// const folder11 = new TaskFolder('folder11');
+// folder1.add(folder11);
+
+// const folder2 = new TaskFolder('folder2');
+// root.add(folder2);
+
+// const renderer = new Renderer(root, 'todo');
+// renderer.render();
+
+
+
+// 4 - TaskFolder, TaskItem의 Hierarchy에 따라 들여쓰기 적용
+// const root = new TaskFolder('root');
+
+// const item1 = new TaskItem('item1');
+// root.add(item1);
+// const folder1 = new TaskFolder('folder1');
+// root.add(folder1);
+
+// const item11 = new TaskItem('item11');
+// folder1.add(item11);
+// const folder11 = new TaskFolder('folder11');
+// folder1.add(folder11);
+
+// const folder2 = new TaskFolder('folder2');
+// root.add(folder2);
+
+// document.getElementById('todo').appendChild(root.getValue());
+
+
+
+// 3 - DOM Renderer로 TaskFolder, TaskItem 렌더링
+// const rootEl = document.getElementById('todo');
+// const folder1 = new TaskFolder('folder1');
+// rootEl.appendChild(folder1.getValue());
+
+// const item1 = new TaskItem('folder1');
+// rootEl.appendChild(item1.getValue());
+
+
+
+// 2 - DOM Renderer 추가 및 테스트
+// const el1 = Dr.el('h1', 'innerHTML', 'ABCDE', '@display', 'inline');
+// const el2 = Dr.el('h1', 'innerHTML', 'ZXD', '@display', 'inline');
+// const button1 = Dr.el('button', 'innerHTML', 'Show Folder', 'addEventListener', ['click', e => console.log('Folder')]);
+// document.getElementById('todo').appendChild(el1);
+// document.getElementById('todo').appendChild(el2);
+// document.getElementById('todo').appendChild(button1);
+
+
+
+// 1 - Task, TaskFolder, TaskItem에 Composite 패턴 적용
+// const root = new TaskFolder('root');
+
+// const item1 = new TaskItem('item1');
+// root.add(item1);
+// const folder1 = new TaskFolder('folder1');
+// root.add(folder1);
+
+// const item11 = new TaskItem('item11');
+// folder1.add(item11);
+// const folder11 = new TaskFolder('folder11');
+// folder1.add(folder11);
+
+// console.log(root.getValue());
+</script>
+
+</body></html>
