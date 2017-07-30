@@ -12,7 +12,7 @@ const Element = class {
 
 	addObserver(observer) { this._observers.add(observer); }
 	removeObserver(observer) { this._observers.delete(observer); }
-	notifyAll() { this._observers.forEach(o => o.render())}
+	notifyAll() { this._observers.forEach(o => o.update()); }
 }
 const TaskFolder = class extends Element {
 	constructor(title) {
@@ -87,7 +87,7 @@ const Dr = class {
 const Observer = class {
 	update() { this._update(); }
 	_update() { throw '_update() should be overriden'; }
-}
+};
 
 const Renderer = class extends Observer {
 	constructor(root, rootElId) {
