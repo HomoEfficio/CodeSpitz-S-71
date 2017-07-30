@@ -1,0 +1,56 @@
+<html><head></head><body>
+<section id="todo"></section>
+<script>
+const Element = class {
+	constructor(title) {
+		this._title = title;
+	}
+
+	getValue() { return this._getValue(); }
+	_getValue() { throw '_title() should be overriden'}
+}
+const TaskFolder = class extends Element {
+	constructor(title) {
+		super(title);
+		this._children = [];
+	}
+
+	add(element) {
+		this._children.push(element);
+	}
+
+	_getValue() {
+		const c = this._children; 
+		let value = '\uD83D\uDCC2 '+ this._title + ' :[';
+		for (let i = 0, len = c.length; i < len; i++) {
+			value += c[i].getValue();
+			if (i < len - 1) value += ',  ';
+		}
+		value += ']';
+		return value;
+	}
+}
+const TaskItem = class extends Element {
+	constructor(title) {
+		super(title);
+	}
+
+	_getValue() { return '\uD83D\uDCCC ' + this._title; }
+}
+
+const root = new TaskFolder('root');
+
+const item1 = new TaskItem('item1');
+root.add(item1);
+const folder1 = new TaskFolder('folder1');
+root.add(folder1);
+
+const item11 = new TaskItem('item11');
+folder1.add(item11);
+const folder11 = new TaskFolder('folder11');
+folder1.add(folder11);
+
+console.log(root.getValue());
+</script>
+</body>
+</html>
